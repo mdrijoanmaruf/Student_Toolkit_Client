@@ -36,7 +36,7 @@ const Navbar = () => {
               <HiAcademicCap className="w-8 h-8 text-white" />
             </div>
             <div className="text-xl font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">
-              Student Life Toolkit
+              StudyMate
             </div>
           </Link>
 
