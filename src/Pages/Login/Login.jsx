@@ -1,7 +1,76 @@
-import React from "react";
+import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
+import { useNavigate, Link } from "react-router-dom";
+import useAuth from "../../Hook/useAuth";
+import Swal from "sweetalert2";
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { signIn, signInWithGoogle } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!email || !password) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Please fill in all fields'
+      });
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      await signIn(email, password);
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Login successful!',
+        timer: 1500,
+        showConfirmButton: false
+      });
+      navigate("/");
+    } catch (error) {
+      console.error("Login error:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Login Failed',
+        text: error.message || 'Failed to login'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    
+    try {
+      await signInWithGoogle();
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Login successful!',
+        timer: 1500,
+        showConfirmButton: false
+      });
+      navigate("/");
+    } catch (error) {
+      console.error("Google sign-in error:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Google Sign-in Failed',
+        text: error.message || 'Failed to sign in with Google'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-gradient-to-r from-gray-900 via-slate-800 to-gray-900 flex items-center justify-center px-4">
       <div className="w-full max-w-3xl bg-gray-800/60 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-700 p-8 md:p-10 flex flex-col md:flex-row items-center md:space-x-10 transition-all duration-300">
@@ -27,14 +96,17 @@ const Login = () => {
             Login to Your Account
           </h2>
 
-          <form className="space-y-4">
-            {/* Username */}
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            {/* Email */}
             <div>
-              <label className="block text-gray-300 text-sm mb-1">Username</label>
+              <label className="block text-gray-300 text-sm mb-1">Email</label>
               <input
-                type="text"
-                placeholder="Enter your username"
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition duration-200"
+                required
               />
             </div>
 
@@ -44,16 +116,20 @@ const Login = () => {
               <input
                 type="password"
                 placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition duration-200"
+                required
               />
             </div>
 
             {/* Login Button */}
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
 
@@ -66,7 +142,9 @@ const Login = () => {
 
           {/* Google Login */}
           <button
-            className="w-full flex items-center justify-center space-x-3 border border-gray-700 hover:border-gray-500 bg-gray-900 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="w-full flex items-center justify-center space-x-3 border border-gray-700 hover:border-gray-500 bg-gray-900 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             <FcGoogle className="w-6 h-6" />
             <span className="text-gray-300 font-medium">Continue with Google</span>
@@ -77,9 +155,9 @@ const Login = () => {
             <a href="#" className="hover:text-purple-400 transition duration-200">
               Forgot Password?
             </a>
-            <a href="/register" className="hover:text-purple-400 transition duration-200">
+            <Link to="/register" className="hover:text-purple-400 transition duration-200">
               Create an Account
-            </a>
+            </Link>
           </div>
         </div>
       </div>

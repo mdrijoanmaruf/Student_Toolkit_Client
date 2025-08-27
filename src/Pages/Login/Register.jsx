@@ -1,7 +1,117 @@
-import React from "react";
+import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
+import { useNavigate, Link } from "react-router-dom";
+import useAuth from "../../Hook/useAuth";
+import Swal from "sweetalert2";
+import { updateProfile } from "firebase/auth";
 
 const Register = () => {
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    photoFile: null
+  });
+  const [loading, setLoading] = useState(false);
+  const { createUser, signInWithGoogle } = useAuth();
+  const navigate = useNavigate();
+
+  const handleInputChange = (e) => {
+    const { name, value, files } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: files ? files[0] : value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.fullName || !formData.email || !formData.password) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Please fill in all required fields'
+      });
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Weak Password',
+        text: 'Password must be at least 6 characters long'
+      });
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      // Create user account
+      const result = await createUser(formData.email, formData.password);
+      
+      // Update user profile with name and photo
+      if (result.user) {
+        let photoURL = null;
+        
+        // If photo file is selected, you might want to upload it to Firebase Storage
+        // For now, we'll use a default photo URL or leave it empty
+        if (formData.photoFile) {
+          // TODO: Implement photo upload to Firebase Storage
+          // photoURL = await uploadPhotoToStorage(formData.photoFile);
+        }
+        
+        await updateProfile(result.user, {
+          displayName: formData.fullName,
+          photoURL: photoURL
+        });
+      }
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Registration successful!',
+        timer: 1500,
+        showConfirmButton: false
+      });
+      navigate("/");
+    } catch (error) {
+      console.error("Registration error:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Registration Failed',
+        text: error.message || 'Failed to create account'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignUp = async () => {
+    setLoading(true);
+    
+    try {
+      await signInWithGoogle();
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Registration successful!',
+        timer: 1500,
+        showConfirmButton: false
+      });
+      navigate("/");
+    } catch (error) {
+      console.error("Google sign-up error:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Google Sign-up Failed',
+        text: error.message || 'Failed to sign up with Google'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-gradient-to-r from-gray-900 via-slate-800 to-gray-900 flex items-center justify-center px-4">
       <div className="w-full max-w-3xl bg-gray-800/60 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-700 p-8 md:p-10 flex flex-col md:flex-row items-center md:space-x-10 transition-all duration-300">
@@ -27,14 +137,18 @@ const Register = () => {
             Create Account
           </h2>
 
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSubmit}>
             {/* Name */}
             <div>
               <label className="block text-gray-300 text-sm mb-1">Full Name</label>
               <input
                 type="text"
+                name="fullName"
                 placeholder="Enter your full name"
+                value={formData.fullName}
+                onChange={handleInputChange}
                 className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition duration-200"
+                required
               />
             </div>
 
@@ -43,7 +157,9 @@ const Register = () => {
               <label className="block text-gray-300 text-sm mb-1">Profile Photo (Optional)</label>
               <input
                 type="file"
+                name="photoFile"
                 accept="image/*"
+                onChange={handleInputChange}
                 className="w-full text-gray-300 text-sm cursor-pointer file:bg-gray-700 file:text-white file:px-4 file:py-2 file:rounded-lg file:border-none file:mr-4 hover:file:bg-purple-600 transition-all duration-200"
               />
             </div>
@@ -53,8 +169,12 @@ const Register = () => {
               <label className="block text-gray-300 text-sm mb-1">Email</label>
               <input
                 type="email"
+                name="email"
                 placeholder="Enter your email"
+                value={formData.email}
+                onChange={handleInputChange}
                 className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition duration-200"
+                required
               />
             </div>
 
@@ -63,17 +183,23 @@ const Register = () => {
               <label className="block text-gray-300 text-sm mb-1">Password</label>
               <input
                 type="password"
-                placeholder="Enter your password"
+                name="password"
+                placeholder="Enter your password (min 6 characters)"
+                value={formData.password}
+                onChange={handleInputChange}
                 className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition duration-200"
+                required
+                minLength={6}
               />
             </div>
 
             {/* Register Button */}
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              Register
+              {loading ? "Creating Account..." : "Register"}
             </button>
           </form>
 
@@ -86,7 +212,9 @@ const Register = () => {
 
           {/* Google Sign-Up */}
           <button
-            className="w-full flex items-center justify-center space-x-3 border border-gray-700 hover:border-gray-500 bg-gray-900 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            onClick={handleGoogleSignUp}
+            disabled={loading}
+            className="w-full flex items-center justify-center space-x-3 border border-gray-700 hover:border-gray-500 bg-gray-900 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             <FcGoogle className="w-6 h-6" />
             <span className="text-gray-300 font-medium">Continue with Google</span>
@@ -95,9 +223,9 @@ const Register = () => {
           {/* Already have account */}
           <div className="text-center mt-4 text-gray-400 text-sm">
             Already have an account?{" "}
-            <a href="/login" className="text-purple-400 hover:underline transition duration-200">
+            <Link to="/login" className="text-purple-400 hover:underline transition duration-200">
               Login
-            </a>
+            </Link>
           </div>
         </div>
       </div>
