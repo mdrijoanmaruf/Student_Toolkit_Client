@@ -6,6 +6,8 @@ import NotFound from "../Pages/NotFound/NotFound";
 import Register from "../Pages/Login/Register";
 import About from "../Pages/About/About";
 import Contact from "../Pages/Contact/Contact";
+import PrivateRoute from "./PrivateRoute";
+import DashboardLayout from "../Layouts/DashboardLayout";
 
 
 export const router = createBrowserRouter([
@@ -38,5 +40,13 @@ export const router = createBrowserRouter([
                 Component: NotFound
             }
         ]
+    },
+
+    // Dashboard
+    {
+        path: "/dashboard",
+        element: <PrivateRoute>
+            <DashboardLayout></DashboardLayout>
+        </PrivateRoute>
     }
 ])

@@ -10,7 +10,6 @@ import {
 } from "firebase/auth";
 import { auth } from "../Firebase/firebase.init";
 
-
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); // current logged-in user
   const [loading, setLoading] = useState(true); // loading state

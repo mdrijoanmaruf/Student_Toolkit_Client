@@ -54,7 +54,12 @@ const Navbar = () => {
         confirmButtonColor: '#9333ea',
         cancelButtonColor: '#6b7280',
         confirmButtonText: 'Yes, logout',
-        cancelButtonText: 'Cancel'
+        cancelButtonText: 'Cancel',
+        background: '#1f2937',
+        color: '#f9fafb',
+        customClass: {
+          popup: 'dark-popup'
+        }
       });
 
       if (result.isConfirmed) {
@@ -65,7 +70,12 @@ const Navbar = () => {
           title: 'Logged out!',
           text: 'You have been successfully logged out.',
           timer: 1500,
-          showConfirmButton: false
+          showConfirmButton: false,
+          background: '#1f2937',
+          color: '#f9fafb',
+          customClass: {
+            popup: 'dark-popup'
+          }
         });
       }
     } catch (error) {
@@ -73,7 +83,13 @@ const Navbar = () => {
       Swal.fire({
         icon: 'error',
         title: 'Logout Failed',
-        text: 'Failed to logout. Please try again.'
+        text: 'Failed to logout. Please try again.',
+        background: '#1f2937',
+        color: '#f9fafb',
+        confirmButtonColor: '#9333ea',
+        customClass: {
+          popup: 'dark-popup'
+        }
       });
     }
   };

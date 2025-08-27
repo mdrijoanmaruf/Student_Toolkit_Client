@@ -1,8 +1,11 @@
 import React from 'react'
+import LoadingTestButton from '../../Components/LoadingTestButton.jsx'
 
 const Home = () => {
   return (
-    <div>Home</div>
+    <div>
+      
+    </div>
   )
 }
 

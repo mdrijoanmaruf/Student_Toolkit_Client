@@ -2,13 +2,16 @@ import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate, Link } from "react-router-dom";
 import useAuth from "../../Hook/useAuth";
+import useWebsiteLoading from "../../Hook/useWebsiteLoading.jsx";
 import Swal from "sweetalert2";
+import { InlineLoading } from "../../Loading";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn, signInWithGoogle } = useAuth();
+  const { withLoading } = useWebsiteLoading();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -18,7 +21,13 @@ const Login = () => {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
-        text: 'Please fill in all fields'
+        text: 'Please fill in all fields',
+        background: '#1f2937',
+        color: '#f9fafb',
+        confirmButtonColor: '#9333ea',
+        customClass: {
+          popup: 'dark-popup'
+        }
       });
       return;
     }
@@ -26,21 +35,34 @@ const Login = () => {
     setLoading(true);
     
     try {
-      await signIn(email, password);
-      Swal.fire({
-        icon: 'success',
-        title: 'Success!',
-        text: 'Login successful!',
-        timer: 1500,
-        showConfirmButton: false
+      await withLoading(async () => {
+        await signIn(email, password);
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Login successful!',
+          timer: 1500,
+          showConfirmButton: false,
+          background: '#1f2937',
+          color: '#f9fafb',
+          customClass: {
+            popup: 'dark-popup'
+          }
+        });
+        navigate("/");
       });
-      navigate("/");
     } catch (error) {
       console.error("Login error:", error);
       Swal.fire({
         icon: 'error',
         title: 'Login Failed',
-        text: error.message || 'Failed to login'
+        text: error.message || 'Failed to login',
+        background: '#1f2937',
+        color: '#f9fafb',
+        confirmButtonColor: '#9333ea',
+        customClass: {
+          popup: 'dark-popup'
+        }
       });
     } finally {
       setLoading(false);
@@ -51,21 +73,34 @@ const Login = () => {
     setLoading(true);
     
     try {
-      await signInWithGoogle();
-      Swal.fire({
-        icon: 'success',
-        title: 'Success!',
-        text: 'Login successful!',
-        timer: 1500,
-        showConfirmButton: false
+      await withLoading(async () => {
+        await signInWithGoogle();
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Login successful!',
+          timer: 1500,
+          showConfirmButton: false,
+          background: '#1f2937',
+          color: '#f9fafb',
+          customClass: {
+            popup: 'dark-popup'
+          }
+        });
+        navigate("/");
       });
-      navigate("/");
     } catch (error) {
       console.error("Google sign-in error:", error);
       Swal.fire({
         icon: 'error',
         title: 'Google Sign-in Failed',
-        text: error.message || 'Failed to sign in with Google'
+        text: error.message || 'Failed to sign in with Google',
+        background: '#1f2937',
+        color: '#f9fafb',
+        confirmButtonColor: '#9333ea',
+        customClass: {
+          popup: 'dark-popup'
+        }
       });
     } finally {
       setLoading(false);
@@ -129,7 +164,11 @@ const Login = () => {
               disabled={loading}
               className="w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {loading ? "Logging in..." : "Login"}
+              {loading ? (
+                <InlineLoading text="Logging in..." size="sm" showIcon={false} />
+              ) : (
+                "Login"
+              )}
             </button>
           </form>
 
@@ -146,8 +185,14 @@ const Login = () => {
             disabled={loading}
             className="w-full flex items-center justify-center space-x-3 border border-gray-700 hover:border-gray-500 bg-gray-900 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
-            <FcGoogle className="w-6 h-6" />
-            <span className="text-gray-300 font-medium">Continue with Google</span>
+            {loading ? (
+              <InlineLoading text="Signing in..." size="sm" showIcon={false} />
+            ) : (
+              <>
+                <FcGoogle className="w-6 h-6" />
+                <span className="text-gray-300 font-medium">Continue with Google</span>
+              </>
+            )}
           </button>
 
           {/* Forgot Password & Sign Up */}

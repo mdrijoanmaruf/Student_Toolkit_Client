@@ -3,12 +3,18 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import { RouterProvider } from 'react-router-dom'
 import { router } from './Route/Route.jsx'
-import AuthProvider from './Contexts/AuthProvider'
+import AuthProvider from './Contexts/AuthProvider.jsx'
+import LoadingProvider from './Contexts/LoadingContext.jsx'
+import LoadingWrapper from './Components/LoadingWrapper.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
+    <LoadingProvider>
+      <AuthProvider>
+        <LoadingWrapper>
+          <RouterProvider router={router} />
+        </LoadingWrapper>
+      </AuthProvider>
+    </LoadingProvider>
   </StrictMode>
 )

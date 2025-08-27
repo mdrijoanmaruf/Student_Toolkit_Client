@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import useAuth from "../../Hook/useAuth";
 import Swal from "sweetalert2";
 import { updateProfile } from "firebase/auth";
+import { InlineLoading } from "../../Loading";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -31,7 +32,13 @@ const Register = () => {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
-        text: 'Please fill in all required fields'
+        text: 'Please fill in all required fields',
+        background: '#1f2937',
+        color: '#f9fafb',
+        confirmButtonColor: '#9333ea',
+        customClass: {
+          popup: 'dark-popup'
+        }
       });
       return;
     }
@@ -40,7 +47,13 @@ const Register = () => {
       Swal.fire({
         icon: 'error',
         title: 'Weak Password',
-        text: 'Password must be at least 6 characters long'
+        text: 'Password must be at least 6 characters long',
+        background: '#1f2937',
+        color: '#f9fafb',
+        confirmButtonColor: '#9333ea',
+        customClass: {
+          popup: 'dark-popup'
+        }
       });
       return;
     }
@@ -73,7 +86,12 @@ const Register = () => {
         title: 'Success!',
         text: 'Registration successful!',
         timer: 1500,
-        showConfirmButton: false
+        showConfirmButton: false,
+        background: '#1f2937',
+        color: '#f9fafb',
+        customClass: {
+          popup: 'dark-popup'
+        }
       });
       navigate("/");
     } catch (error) {
@@ -81,7 +99,13 @@ const Register = () => {
       Swal.fire({
         icon: 'error',
         title: 'Registration Failed',
-        text: error.message || 'Failed to create account'
+        text: error.message || 'Failed to create account',
+        background: '#1f2937',
+        color: '#f9fafb',
+        confirmButtonColor: '#9333ea',
+        customClass: {
+          popup: 'dark-popup'
+        }
       });
     } finally {
       setLoading(false);
@@ -98,7 +122,12 @@ const Register = () => {
         title: 'Success!',
         text: 'Registration successful!',
         timer: 1500,
-        showConfirmButton: false
+        showConfirmButton: false,
+        background: '#1f2937',
+        color: '#f9fafb',
+        customClass: {
+          popup: 'dark-popup'
+        }
       });
       navigate("/");
     } catch (error) {
@@ -106,7 +135,13 @@ const Register = () => {
       Swal.fire({
         icon: 'error',
         title: 'Google Sign-up Failed',
-        text: error.message || 'Failed to sign up with Google'
+        text: error.message || 'Failed to sign up with Google',
+        background: '#1f2937',
+        color: '#f9fafb',
+        confirmButtonColor: '#9333ea',
+        customClass: {
+          popup: 'dark-popup'
+        }
       });
     } finally {
       setLoading(false);
@@ -199,7 +234,11 @@ const Register = () => {
               disabled={loading}
               className="w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {loading ? "Creating Account..." : "Register"}
+              {loading ? (
+                <InlineLoading text="Creating Account..." size="sm" showIcon={false} />
+              ) : (
+                "Register"
+              )}
             </button>
           </form>
 
@@ -216,8 +255,14 @@ const Register = () => {
             disabled={loading}
             className="w-full flex items-center justify-center space-x-3 border border-gray-700 hover:border-gray-500 bg-gray-900 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
-            <FcGoogle className="w-6 h-6" />
-            <span className="text-gray-300 font-medium">Continue with Google</span>
+            {loading ? (
+              <InlineLoading text="Signing up..." size="sm" showIcon={false} />
+            ) : (
+              <>
+                <FcGoogle className="w-6 h-6" />
+                <span className="text-gray-300 font-medium">Continue with Google</span>
+              </>
+            )}
           </button>
 
           {/* Already have account */}

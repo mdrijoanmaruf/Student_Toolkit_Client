@@ -3,7 +3,7 @@ import { HiCalendar, HiCash, HiAcademicCap, HiCheckCircle } from "react-icons/hi
 
 const About = () => {
   return (
-    <div className="bg-gradient-to-r from-gray-900 via-slate-800 to-gray-900 text-white min-h-screen pt-20 pb-16">
+    <div className=" text-white min-h-screen pt-20 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Hero Section */}
