@@ -219,7 +219,7 @@ What would you like to explore today?`,
   }
 
   return (
-    <div className="h-full bg-gradient-to-br from-gray-900 via-slate-900 to-black relative overflow-hidden">
+    <div className="h-full  overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 opacity-10 z-0">
         <div className="grid grid-cols-12 grid-rows-8 h-full w-full">
@@ -236,32 +236,8 @@ What would you like to explore today?`,
         </div>
       </div>
 
-      {/* Header */}
-      <div className="bg-gray-800/40 backdrop-blur-md border-b border-gray-700/50 p-4 relative z-10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-violet-600 rounded-full flex items-center justify-center">
-              <HiSparkles className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-white">AI Study Assistant</h1>
-              <p className="text-sm text-gray-400">Powered by Gemini AI</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={clearChat}
-              className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-700/50 transition-colors duration-200"
-              title="Clear Chat"
-            >
-              <HiRefresh className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 relative z-10" style={{ height: 'calc(100vh - 200px)' }}>
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 relative z-10" style={{ height: 'calc(100vh - 270px)' }}>
         {messages.map((message) => (
           <div
             key={message.id}
@@ -337,6 +313,13 @@ What would you like to explore today?`,
               disabled={!apiKey || isLoading}
             />
           </div>
+          <button
+            onClick={clearChat}
+            className="p-3 text-gray-400 hover:text-white rounded-lg hover:bg-gray-700/50 transition-colors duration-200"
+            title="Clear Chat"
+          >
+            <HiRefresh className="w-5 h-5" />
+          </button>
           <button
             onClick={sendMessage}
             disabled={!inputMessage.trim() || !apiKey || isLoading}
