@@ -125,18 +125,18 @@ const DashboardLayout = () => {
                 <button
                   key={item.path}
                   onClick={() => navigate(item.path)}
-                  className={`w-full flex items-center px-4 py-3 rounded-xl transition-all duration-200 group relative z-40 ${
+                  className={`w-full flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative z-40 ${
                     isActive
-                      ? 'bg-gradient-to-r from-purple-600/30 to-violet-600/30 text-purple-300 border border-purple-500/50 shadow-lg shadow-purple-500/20'
-                      : 'text-gray-300 hover:bg-purple-600/20 hover:text-purple-300'
+                      ? 'text-white bg-gradient-to-r from-purple-600 to-violet-600 shadow-md'
+                      : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
                   }`}
                 >
                   <item.icon className={`mr-3 h-5 w-5 transition-transform duration-200 ${
-                    isActive ? 'scale-110 text-purple-300' : 'group-hover:scale-110'
+                    isActive ? 'text-white' : 'group-hover:scale-110'
                   }`} />
                   {item.label}
                   {isActive && (
-                    <div className="ml-auto w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+                    <span className="absolute left-1/2 -bottom-1 transform -translate-x-1/2 w-1 h-1 bg-purple-400 rounded-full"></span>
                   )}
                 </button>
               )
@@ -202,18 +202,18 @@ const DashboardLayout = () => {
                       navigate(item.path)
                       setSidebarOpen(false)
                     }}
-                    className={`w-full flex items-center px-4 py-3 rounded-xl transition-all duration-200 group ${
+                    className={`w-full flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative ${
                       isActive
-                        ? 'bg-gradient-to-r from-purple-600/30 to-violet-600/30 text-purple-300 border border-purple-500/50 shadow-lg shadow-purple-500/20'
-                        : 'text-gray-300 hover:bg-purple-600/20 hover:text-purple-300'
+                        ? 'text-white bg-gradient-to-r from-purple-600 to-violet-600 shadow-md'
+                        : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
                     }`}
                   >
                     <item.icon className={`mr-3 h-5 w-5 transition-transform duration-200 ${
-                      isActive ? 'scale-110 text-purple-300' : 'group-hover:scale-110'
+                      isActive ? 'text-white' : 'group-hover:scale-110'
                     }`} />
                     {item.label}
                     {isActive && (
-                      <div className="ml-auto w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+                      <span className="absolute left-1/2 -bottom-1 transform -translate-x-1/2 w-1 h-1 bg-purple-400 rounded-full"></span>
                     )}
                   </button>
                 )
