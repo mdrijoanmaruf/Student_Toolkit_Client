@@ -12,10 +12,12 @@ import {
   HiPencil
 } from 'react-icons/hi'
 import useAuth from '../../Hook/useAuth'
+import useAxios from '../../Hook/useAxios'
 import Swal from 'sweetalert2'
 
 const BudgetTracker = () => {
   const { user } = useAuth()
+  const axiosSecure = useAxios()
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -32,15 +34,13 @@ const BudgetTracker = () => {
   const expenseCategories = ['Food', 'Books', 'Transportation', 'Housing', 'Entertainment', 'Health', 'Other']
   const incomeCategories = ['Allowance', 'Job', 'Scholarship', 'Gift', 'Other']
 
-  const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000'
-
   // Fetch transactions from API
   const fetchTransactions = async () => {
     if (!user?.uid) return
     
     try {
-      const response = await fetch(`${API_BASE}/api/transactions/${user.uid}`)
-      const data = await response.json()
+      const response = await axiosSecure.get(`/api/transactions/${user.uid}`)
+      const data = response.data
       
       if (data.success) {
         setTransactions(data.data)
@@ -70,18 +70,12 @@ const BudgetTracker = () => {
 
     setSubmitting(true)
     try {
-      const response = await fetch(`${API_BASE}/api/transactions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: user.uid,
-          ...newTransaction
-        })
+      const response = await axiosSecure.post('/api/transactions', {
+        userId: user.uid,
+        ...newTransaction
       })
 
-      const data = await response.json()
+      const data = response.data
       
       if (data.success) {
         setTransactions([data.data, ...transactions])
@@ -181,15 +175,9 @@ const BudgetTracker = () => {
 
     if (formValues) {
       try {
-        const response = await fetch(`${API_BASE}/api/transactions/${transaction._id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formValues)
-        })
+        const response = await axiosSecure.put(`/api/transactions/${transaction._id}`, formValues)
 
-        const data = await response.json()
+        const data = response.data
         
         if (data.success) {
           // Update the transaction in the local state
@@ -250,11 +238,9 @@ const BudgetTracker = () => {
 
     if (result.isConfirmed) {
       try {
-        const response = await fetch(`${API_BASE}/api/transactions/${transactionId}`, {
-          method: 'DELETE'
-        })
+        const response = await axiosSecure.delete(`/api/transactions/${transactionId}`)
 
-        const data = await response.json()
+        const data = response.data
         
         if (data.success) {
           setTransactions(transactions.filter(t => t._id !== transactionId))
