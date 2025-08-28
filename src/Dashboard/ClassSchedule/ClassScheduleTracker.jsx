@@ -6,7 +6,15 @@ import {
   HiAcademicCap,
   HiPlus,
   HiPencil,
-  HiTrash
+  HiTrash,
+  HiSearch,
+  HiFilter,
+  HiStar,
+  HiEye,
+  HiChevronLeft,
+  HiChevronRight,
+  HiBell,
+  HiViewList
 } from 'react-icons/hi'
 import useAxios from '../../Hook/useAxios'
 import useAuth from '../../Hook/useAuth'
@@ -23,13 +31,18 @@ const ClassScheduleTracker = () => {
   const [showEditForm, setShowEditForm] = useState(false)
   const [editingClass, setEditingClass] = useState(null)
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterDay, setFilterDay] = useState('all')
+  const [selectedWeek, setSelectedWeek] = useState(0)
   const [newClass, setNewClass] = useState({
     subject: '',
     timeFrom: '',
     timeTo: '',
     location: '',
     day: 'Monday',
-    color: 'blue'
+    color: 'blue',
+    instructor: '',
+    credits: 1
   })
 
   // Update current time every second for real-time countdown
@@ -68,7 +81,7 @@ const ClassScheduleTracker = () => {
   }
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-  const colors = ['blue', 'purple', 'green', 'red', 'yellow', 'pink', 'indigo']
+  const colors = ['blue', 'purple', 'green', 'red', 'yellow', 'pink', 'indigo', 'cyan', 'orange']
 
   const colorClasses = {
     blue: 'bg-blue-500/20 border-blue-500/30 text-blue-300',
@@ -77,7 +90,32 @@ const ClassScheduleTracker = () => {
     red: 'bg-red-500/20 border-red-500/30 text-red-300',
     yellow: 'bg-yellow-500/20 border-yellow-500/30 text-yellow-300',
     pink: 'bg-pink-500/20 border-pink-500/30 text-pink-300',
-    indigo: 'bg-indigo-500/20 border-indigo-500/30 text-indigo-300'
+    indigo: 'bg-indigo-500/20 border-indigo-500/30 text-indigo-300',
+    cyan: 'bg-cyan-500/20 border-cyan-500/30 text-cyan-300',
+    orange: 'bg-orange-500/20 border-orange-500/30 text-orange-300'
+  }
+
+  // Helper functions for responsive features
+  const getCurrentWeekDates = (weekOffset = 0) => {
+    const today = new Date()
+    const currentDay = today.getDay()
+    const monday = new Date(today)
+    monday.setDate(today.getDate() - currentDay + 1 + (weekOffset * 7))
+    
+    return days.map((_, index) => {
+      const date = new Date(monday)
+      date.setDate(monday.getDate() + index)
+      return date
+    })
+  }
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  }
+
+  const isToday = (date) => {
+    const today = new Date()
+    return date.toDateString() === today.toDateString()
   }
 
   const handleAddClass = async () => {
@@ -98,7 +136,9 @@ const ClassScheduleTracker = () => {
             timeTo: '',
             location: '',
             day: 'Monday',
-            color: 'blue'
+            color: 'blue',
+            instructor: '',
+            credits: 1
           })
           setShowAddForm(false)
           
@@ -239,7 +279,40 @@ const ClassScheduleTracker = () => {
   }
 
   const getClassesForDay = (day) => {
-    return schedule.filter(cls => cls.day === day).sort((a, b) => a.time.localeCompare(b.time))
+    return schedule
+      .filter(cls => cls.day === day)
+      .filter(cls => {
+        if (searchTerm) {
+          return cls.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                 cls.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                 (cls.instructor && cls.instructor.toLowerCase().includes(searchTerm.toLowerCase()))
+        }
+        return true
+      })
+      .sort((a, b) => a.time.localeCompare(b.time))
+  }
+
+  // Get filtered classes for list view
+  const getFilteredClasses = () => {
+    let filtered = schedule
+    
+    if (searchTerm) {
+      filtered = filtered.filter(cls => 
+        cls.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cls.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (cls.instructor && cls.instructor.toLowerCase().includes(searchTerm.toLowerCase()))
+      )
+    }
+    
+    if (filterDay !== 'all') {
+      filtered = filtered.filter(cls => cls.day === filterDay)
+    }
+    
+    return filtered.sort((a, b) => {
+      const dayOrder = days.indexOf(a.day) - days.indexOf(b.day)
+      if (dayOrder !== 0) return dayOrder
+      return a.time.localeCompare(b.time)
+    })
   }
 
   // Show loading state
@@ -353,7 +426,7 @@ const ClassScheduleTracker = () => {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-2 sm:p-0">
       {/* Error Display */}
       {error && (
         <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3 text-red-300 text-sm">
@@ -362,48 +435,88 @@ const ClassScheduleTracker = () => {
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-        <div className="flex items-center space-x-2 sm:space-x-3">
-          <HiCalendar className="w-6 h-6 sm:w-8 sm:h-8 text-blue-400" />
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Class Schedule</h1>
+      <div className="flex flex-col space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <HiCalendar className="w-6 h-6 sm:w-8 sm:h-8 text-blue-400" />
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">Class Schedule</h1>
+              <p className="text-gray-400 text-sm">Manage your academic timetable</p>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+            <button
+              onClick={() => {
+                setShowAddForm(!showAddForm)
+                setShowEditForm(false)
+                setEditingClass(null)
+              }}
+              className="bg-gradient-to-r from-purple-600 to-violet-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-violet-700 transition-all duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base"
+            >
+              <HiPlus className="w-4 h-4" />
+              <span>Add Class</span>
+            </button>
+          </div>
         </div>
-        <button
-          onClick={() => {
-            setShowAddForm(!showAddForm)
-            setShowEditForm(false)
-            setEditingClass(null)
-          }}
-          className="bg-gradient-to-r from-purple-600 to-violet-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-violet-700 transition-all duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base w-full sm:w-auto"
-        >
-          <HiPlus className="w-4 h-4" />
-          <span>Add Class</span>
-        </button>
+
+        {/* Search and Filter Bar */}
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+          <div className="relative flex-1">
+            <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search classes, locations, or instructors..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-gray-800/40 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+            />
+          </div>
+          <select
+            value={filterDay}
+            onChange={(e) => setFilterDay(e.target.value)}
+            className="bg-gray-800/40 border border-gray-600/50 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+          >
+            <option value="all">All Days</option>
+            {days.map(day => (
+                <option key={day} value={day}>{day}</option>
+              ))}
+            </select>
+        </div>
       </div>
 
-      {/* Today's Schedule - Moved to Top */}
-      <div className="bg-gray-800/40 backdrop-blur-md rounded-2xl p-4 sm:p-6 border border-gray-700/50">
-        <h2 className="text-lg sm:text-xl font-semibold text-white mb-4">Today's Classes - {getTodayName()}</h2>
-        <div className="space-y-3">
-          {getTodayClasses().map((cls) => (
-            <div
-              key={cls.id}
-              className={`${colorClasses[cls.color]} border rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0`}
-            >
+      {/* Today's Schedule - Enhanced */}
+      <div className="bg-gray-800/40 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-700/50">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold text-white flex items-center">
+              <HiBell className="w-5 h-5 mr-2 text-yellow-400" />
+              Today's Classes - {getTodayName()}
+            </h2>
+            <span className="text-xs text-gray-400 bg-gray-700/30 px-2 py-1 rounded-full">
+              {getTodayClasses().length} classes
+            </span>
+          </div>
+          <div className="space-y-3">
+            {getTodayClasses().map((cls) => (
+              <div
+                key={cls.id}
+                className={`${colorClasses[cls.color]} border rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0`}
+              >
                 <div className="flex items-center space-x-3 sm:space-x-4">
                   <HiAcademicCap className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
                   <div>
                     <h4 className="font-semibold text-sm sm:text-base">{cls.subject}</h4>
                     <p className="text-xs sm:text-sm opacity-80">{cls.location}</p>
+                    {cls.instructor && <p className="text-xs opacity-70">{cls.instructor}</p>}
                   </div>
                 </div>
                 <div className="text-left sm:text-right ml-8 sm:ml-0">
                   <p className="font-medium text-sm sm:text-base">{cls.displayTime || cls.time}</p>
                   <p className={`text-xs sm:text-sm font-medium ${
-                    cls.statusInfo.status === 'ongoing' ? 'text-green-400' :
-                    cls.statusInfo.status === 'upcoming' ? 'text-blue-400' :
+                    cls.statusInfo?.status === 'ongoing' ? 'text-green-400' :
+                    cls.statusInfo?.status === 'upcoming' ? 'text-blue-400' :
                     'text-red-400'
                   }`}>
-                    {cls.statusInfo.message}
+                    {cls.statusInfo?.message || 'Class scheduled'}
                   </p>
                 </div>
               </div>
@@ -411,16 +524,123 @@ const ClassScheduleTracker = () => {
             
             {getTodayClasses().length === 0 && (
               <div className="text-center text-gray-500 py-6 sm:py-8 text-sm sm:text-base">
-                No classes scheduled for today
+                <HiCalendar className="w-12 h-12 mx-auto mb-3 text-gray-600" />
+                <p>No classes scheduled for today</p>
+                <p className="text-xs mt-1">Enjoy your free time! 🎉</p>
               </div>
             )}
+          </div>
         </div>
-      </div>
+
+      {/* All Classes */}
+      <div className="bg-gray-800/40 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-700/50">
+          <h2 className="text-lg sm:text-xl font-semibold text-white mb-4 flex items-center">
+            <HiViewList className="w-5 h-5 mr-2 text-green-400" />
+            All Classes
+          </h2>
+          
+          {getFilteredClasses().length > 0 ? (
+            <div className="space-y-3">
+              {getFilteredClasses().map((cls, index) => (
+                <div
+                  key={index}
+                  className={`p-3 sm:p-4 rounded-lg border border-${cls.color}-500/30 bg-${cls.color}-500/10 hover:bg-${cls.color}-500/20 transition-all duration-200 cursor-pointer`}
+                  onClick={() => handleEditClass(cls)}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
+                    <div className="flex-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4">
+                        <h3 className={`text-base sm:text-lg font-semibold text-${cls.color}-300`}>
+                          {cls.subject}
+                        </h3>
+                        <span className="text-xs sm:text-sm text-gray-400 bg-gray-700/50 px-2 py-1 rounded w-fit">
+                          {cls.day}
+                        </span>
+                      </div>
+                      
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 text-xs sm:text-sm text-gray-300">
+                        <div className="flex items-center">
+                          <HiClock className="w-4 h-4 mr-1 text-gray-400" />
+                          {cls.timeFrom} - {cls.timeTo}
+                        </div>
+                        {cls.location && (
+                          <div className="flex items-center">
+                            <HiLocationMarker className="w-4 h-4 mr-1 text-gray-400" />
+                            {cls.location}
+                          </div>
+                        )}
+                        {cls.instructor && (
+                          <div className="flex items-center">
+                            <HiUser className="w-4 h-4 mr-1 text-gray-400" />
+                            {cls.instructor}
+                          </div>
+                        )}
+                        {cls.credits && (
+                          <div className="flex items-center">
+                            <HiAcademicCap className="w-4 h-4 mr-1 text-gray-400" />
+                            {cls.credits} credits
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(cls.id);
+                        }}
+                        className={`p-2 rounded-lg transition-colors ${
+                          cls.isFavorite 
+                            ? 'text-yellow-400 bg-yellow-400/10 hover:bg-yellow-400/20' 
+                            : 'text-gray-500 hover:text-yellow-400 hover:bg-yellow-400/10'
+                        }`}
+                      >
+                        <HiStar className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteClass(cls.id);
+                        }}
+                        className="p-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors"
+                      >
+                        <HiTrash className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 sm:py-12">
+              <HiCalendar className="w-12 h-12 sm:w-16 sm:h-16 text-gray-600 mx-auto mb-3 sm:mb-4" />
+              <h3 className="text-lg sm:text-xl font-medium text-gray-400 mb-2">No Classes Found</h3>
+              <p className="text-sm sm:text-base text-gray-500 mb-4">
+                {searchTerm || filterDay !== 'All' 
+                  ? 'Try adjusting your search or filter.' 
+                  : 'Add your first class to get started!'
+                }
+              </p>
+              {(!searchTerm && filterDay === 'All') && (
+                <button
+                  onClick={() => setShowAddForm(true)}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 text-sm sm:text-base"
+                >
+                  Add Your First Class
+                </button>
+              )}
+            </div>
+          )}
+        </div>
 
       {/* Add Class Form */}
       {showAddForm && (
-        <div className="bg-gray-800/40 backdrop-blur-md rounded-2xl p-4 sm:p-6 border border-gray-700/50">
-          <h2 className="text-lg sm:text-xl font-semibold text-white mb-4">Add New Class</h2>
+        <div className="bg-gray-800/40 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-700/50">
+          <h2 className="text-lg sm:text-xl font-semibold text-white mb-4 flex items-center">
+            <HiPlus className="w-5 h-5 mr-2 text-green-400" />
+            Add New Class
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
             <input
               type="text"
@@ -431,9 +651,25 @@ const ClassScheduleTracker = () => {
             />
             <input
               type="text"
-              placeholder="Location"
+              placeholder="Location/Room"
               value={newClass.location}
               onChange={(e) => setNewClass({...newClass, location: e.target.value})}
+              className="bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 sm:px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
+            />
+            <input
+              type="text"
+              placeholder="Instructor (optional)"
+              value={newClass.instructor}
+              onChange={(e) => setNewClass({...newClass, instructor: e.target.value})}
+              className="bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 sm:px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
+            />
+            <input
+              type="number"
+              placeholder="Credits"
+              min="1"
+              max="6"
+              value={newClass.credits}
+              onChange={(e) => setNewClass({...newClass, credits: parseInt(e.target.value)})}
               className="bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 sm:px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
             />
             <div className="sm:col-span-2 grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
@@ -494,8 +730,11 @@ const ClassScheduleTracker = () => {
 
       {/* Edit Class Form */}
       {showEditForm && editingClass && (
-        <div className="bg-gray-800/40 backdrop-blur-md rounded-2xl p-4 sm:p-6 border border-gray-700/50">
-          <h2 className="text-lg sm:text-xl font-semibold text-white mb-4">Edit Class</h2>
+        <div className="bg-gray-800/40 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-700/50">
+          <h2 className="text-lg sm:text-xl font-semibold text-white mb-4 flex items-center">
+            <HiPencil className="w-5 h-5 mr-2 text-blue-400" />
+            Edit Class
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
             <input
               type="text"
@@ -506,9 +745,25 @@ const ClassScheduleTracker = () => {
             />
             <input
               type="text"
-              placeholder="Location"
+              placeholder="Location/Room"
               value={editingClass.location}
               onChange={(e) => setEditingClass({...editingClass, location: e.target.value})}
+              className="bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 sm:px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
+            />
+            <input
+              type="text"
+              placeholder="Instructor (optional)"
+              value={editingClass.instructor || ''}
+              onChange={(e) => setEditingClass({...editingClass, instructor: e.target.value})}
+              className="bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 sm:px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
+            />
+            <input
+              type="number"
+              placeholder="Credits"
+              min="1"
+              max="6"
+              value={editingClass.credits || ''}
+              onChange={(e) => setEditingClass({...editingClass, credits: parseInt(e.target.value)})}
               className="bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 sm:px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
             />
             <div className="sm:col-span-2 grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
@@ -570,63 +825,6 @@ const ClassScheduleTracker = () => {
         </div>
       )}
 
-      {/* Weekly Schedule */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-3 sm:gap-4">
-        {days.map((day) => (
-          <div key={day} className="bg-gray-800/40 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-gray-700/50">
-            <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 text-center">{day}</h3>
-            <div className="space-y-2 sm:space-y-3">
-              {getClassesForDay(day).map((cls) => (
-                <div
-                  key={cls._id}
-                  className={`${colorClasses[cls.color]} border rounded-lg p-2 sm:p-3 relative group`}
-                >
-                  <div className="absolute top-1 sm:top-2 right-1 sm:right-2 flex space-x-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
-                    <button
-                      onClick={() => handleEditClass(cls)}
-                      className="text-blue-400 hover:text-blue-300 p-1"
-                      title="Edit class"
-                    >
-                      <HiPencil className="w-3 h-3 sm:w-4 sm:h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClass(cls._id, cls.subject)}
-                      className="text-red-400 hover:text-red-300 p-1"
-                      title="Delete class"
-                    >
-                      <HiTrash className="w-3 h-3 sm:w-4 sm:h-4" />
-                    </button>
-                  </div>
-                  
-                  <div className="pr-12 sm:pr-16">
-                    <div className="flex items-center space-x-1 sm:space-x-2 mb-1 sm:mb-2">
-                      <HiAcademicCap className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                      <h4 className="font-semibold text-xs sm:text-sm leading-tight">{cls.subject}</h4>
-                    </div>
-                    
-                    <div className="space-y-0.5 sm:space-y-1 text-xs opacity-90">
-                      <div className="flex items-center space-x-1 sm:space-x-2">
-                        <HiClock className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
-                        <span className="text-xs truncate">{cls.displayTime || cls.time}</span>
-                      </div>
-                      <div className="flex items-center space-x-1 sm:space-x-2">
-                        <HiLocationMarker className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
-                        <span className="text-xs truncate">{cls.location}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              {getClassesForDay(day).length === 0 && (
-                <div className="text-center text-gray-500 text-xs sm:text-sm py-4 sm:py-8">
-                  No classes scheduled
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   )
 }

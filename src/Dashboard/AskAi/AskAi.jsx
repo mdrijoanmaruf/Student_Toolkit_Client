@@ -16,7 +16,7 @@ import Swal from 'sweetalert2'
 const AskAi = () => {
   const { user } = useAuth()
   
-  // Add CSS to hide scrollbars
+  // Add CSS to hide scrollbars and improve mobile experience
   useEffect(() => {
     const style = document.createElement('style')
     style.textContent = `
@@ -26,6 +26,24 @@ const AskAi = () => {
       }
       .hide-scrollbar::-webkit-scrollbar {
         display: none;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      /* Mobile optimizations */
+      @media (max-width: 768px) {
+        .mobile-chat-container {
+          -webkit-overflow-scrolling: touch;
+          overscroll-behavior: contain;
+        }
+        /* Adjust for mobile keyboard */
+        .mobile-input-area {
+          padding-bottom: env(safe-area-inset-bottom);
+        }
       }
     `
     document.head.appendChild(style)
@@ -230,29 +248,40 @@ What would you like to explore today?`,
   ]
 
   const formatMessage = (content) => {
-    // Enhanced formatting for AI responses with better styling
+    // Enhanced formatting for AI responses with mobile-responsive styling
     return content
       .replace(/\*\*(.*?)\*\*/g, '<strong class="text-purple-200 font-semibold">$1</strong>')
       .replace(/\*(.*?)\*/g, '<em class="text-blue-200 italic">$1</em>')
-      .replace(/```(.*?)```/gs, '<div class="my-3"><pre class="bg-gray-900/80 border border-gray-600/50 p-4 rounded-lg text-sm overflow-x-auto text-green-300 font-mono shadow-inner"><code>$1</code></pre></div>')
-      .replace(/`(.*?)`/g, '<code class="bg-purple-900/50 text-purple-200 px-2 py-1 rounded text-sm font-mono border border-purple-700/30">$1</code>')
-      .replace(/^• (.*$)/gim, '<div class="flex items-start mb-2"><span class="text-purple-400 mr-2 mt-1">▸</span><span class="flex-1">$1</span></div>')
-      .replace(/^(\d+\.) (.*$)/gim, '<div class="flex items-start mb-2"><span class="text-blue-400 mr-2 font-semibold min-w-[24px]">$1</span><span class="flex-1">$2</span></div>')
-      .replace(/\n\n/g, '<div class="my-3"></div>')
+      .replace(/```(.*?)```/gs, '<div class="my-2 sm:my-3"><pre class="bg-gray-900/80 border border-gray-600/50 p-2 sm:p-4 rounded-lg text-xs sm:text-sm overflow-x-auto text-green-300 font-mono shadow-inner"><code>$1</code></pre></div>')
+      .replace(/`(.*?)`/g, '<code class="bg-purple-900/50 text-purple-200 px-1 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm font-mono border border-purple-700/30">$1</code>')
+      .replace(/^• (.*$)/gim, '<div class="flex items-start mb-1 sm:mb-2"><span class="text-purple-400 mr-1 sm:mr-2 mt-1 text-xs sm:text-sm">▸</span><span class="flex-1 text-xs sm:text-sm">$1</span></div>')
+      .replace(/^(\d+\.) (.*$)/gim, '<div class="flex items-start mb-1 sm:mb-2"><span class="text-blue-400 mr-1 sm:mr-2 font-semibold min-w-[18px] sm:min-w-[24px] text-xs sm:text-sm">$1</span><span class="flex-1 text-xs sm:text-sm">$2</span></div>')
+      .replace(/\n\n/g, '<div class="my-2 sm:my-3"></div>')
       .replace(/\n/g, '<br>')
   }
 
   return (
-    <div className="h-full overflow-hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+    <div className="h-full flex flex-col relative" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
       {/* Background Effects */}
-      <div className="absolute inset-0 opacity-10 z-0">
-        <div className="grid grid-cols-12 grid-rows-8 h-full w-full">
-          {[...Array(96)].map((_, i) => (
+      <div className="absolute inset-0 opacity-5 sm:opacity-10 z-0">
+        <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-12 grid-rows-4 sm:grid-rows-6 md:grid-rows-8 h-full w-full">
+          {[...Array(24)].map((_, i) => (
             <div
               key={i}
-              className="border border-purple-500/20 animate-pulse"
+              className="border border-purple-500/20 animate-pulse hidden sm:block"
               style={{
                 animationDelay: `${(i * 0.1) % 3}s`,
+                animationDuration: '4s'
+              }}
+            />
+          ))}
+          {/* Mobile grid - fewer elements */}
+          {[...Array(24)].map((_, i) => (
+            <div
+              key={`mobile-${i}`}
+              className="border border-purple-500/20 animate-pulse block sm:hidden"
+              style={{
+                animationDelay: `${(i * 0.15) % 3}s`,
                 animationDuration: '4s'
               }}
             />
@@ -262,18 +291,18 @@ What would you like to explore today?`,
 
       {/* Messages Container */}
       <div 
-        className="flex-1 overflow-y-auto p-4 space-y-4 relative z-10 hide-scrollbar" 
+        className="flex-1 overflow-y-auto px-3 sm:px-4 py-3 sm:py-4 space-y-3 sm:space-y-4 relative z-10 hide-scrollbar mobile-chat-container" 
         style={{ 
-          height: 'calc(100vh - 270px)'
+          paddingBottom: '140px'
         }}
       >
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex items-start space-x-3 ${message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}
+            className={`flex items-start space-x-2 sm:space-x-3 ${message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}
           >
             {/* Avatar */}
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg overflow-hidden ${
+            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg overflow-hidden ${
               message.type === 'user' 
                 ? 'bg-gradient-to-br from-purple-500 to-violet-600 border-2 border-purple-300/50' 
                 : 'bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-purple-400/30'
@@ -286,27 +315,27 @@ What would you like to explore today?`,
                     className="w-full h-full object-cover rounded-full"
                   />
                 ) : (
-                  <span className="text-white font-semibold text-sm">
+                  <span className="text-white font-semibold text-xs sm:text-sm">
                     {user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
                   </span>
                 )
               ) : (
-                <HiSparkles className="w-4 h-4 text-purple-400" />
+                <HiSparkles className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400" />
               )}
             </div>
 
             {/* Message Bubble */}
-            <div className={`max-w-[75%] relative ${
+            <div className={`max-w-[85%] sm:max-w-[75%] relative ${
               message.type === 'user' ? 'ml-auto' : 'mr-auto'
             }`}>
               {/* Message Content */}
-              <div className={`p-4 rounded-2xl shadow-lg backdrop-blur-sm ${
+              <div className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-lg backdrop-blur-sm ${
                 message.type === 'user'
                   ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white rounded-tr-md'
                   : 'bg-gray-800/90 border border-gray-700/50 text-gray-100 rounded-tl-md'
               }`}>
                 <div 
-                  className={`leading-relaxed ${message.type === 'ai' ? 'text-gray-100' : ''}`}
+                  className={`leading-relaxed text-sm sm:text-base ${message.type === 'ai' ? 'text-gray-100' : ''}`}
                   dangerouslySetInnerHTML={{
                     __html: message.type === 'ai' ? formatMessage(message.content) : message.content
                   }}
@@ -326,21 +355,21 @@ What would you like to explore today?`,
         ))}
 
         {isLoading && (
-          <div className="flex items-start space-x-3">
+          <div className="flex items-start space-x-2 sm:space-x-3">
             {/* AI Avatar */}
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-purple-400/30 flex items-center justify-center shrink-0 shadow-lg">
-              <HiSparkles className="w-4 h-4 text-purple-400 animate-pulse" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-purple-400/30 flex items-center justify-center shrink-0 shadow-lg">
+              <HiSparkles className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400 animate-pulse" />
             </div>
             
             {/* Typing Indicator */}
-            <div className="bg-gray-800/90 border border-gray-700/50 p-4 rounded-2xl rounded-tl-md shadow-lg backdrop-blur-sm">
-              <div className="flex items-center space-x-3">
+            <div className="bg-gray-800/90 border border-gray-700/50 p-3 sm:p-4 rounded-xl sm:rounded-2xl rounded-tl-md shadow-lg backdrop-blur-sm">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-400 rounded-full animate-bounce"></div>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                 </div>
-                <span className="text-gray-400 text-sm font-medium">AI is thinking...</span>
+                <span className="text-gray-400 text-xs sm:text-sm font-medium">AI is thinking...</span>
               </div>
             </div>
           </div>
@@ -349,17 +378,19 @@ What would you like to explore today?`,
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Quick Prompts Bar */}
-      <div className="p-4 border-t border-gray-700/50 relative z-10">
-        <div className="flex space-x-2 mb-4 overflow-x-auto pb-2">
+      {/* Fixed Bottom Input Area */}
+      <div className="fixed bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-sm border-t border-gray-700/50 p-3 sm:p-4 z-20 md:relative md:bg-transparent md:backdrop-blur-none md:border-t-0">
+        {/* Quick Prompts Bar */}
+        <div className="flex space-x-2 mb-3 sm:mb-4 overflow-x-auto pb-2 scrollbar-hide">
           {quickPrompts.map((prompt, index) => (
             <button
               key={index}
               onClick={() => setInputMessage(prompt.prompt + ' ')}
-              className="flex items-center space-x-2 px-3 py-2 bg-gray-800/60 hover:bg-gray-700/60 text-gray-300 hover:text-white rounded-lg transition-colors duration-200 whitespace-nowrap"
+              className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-800/60 hover:bg-gray-700/60 text-gray-300 hover:text-white rounded-lg transition-colors duration-200 whitespace-nowrap flex-shrink-0"
             >
-              <prompt.icon className="w-4 h-4" />
-              <span className="text-sm">{prompt.text}</span>
+              <prompt.icon className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="text-xs sm:text-sm hidden sm:inline">{prompt.text}</span>
+              <span className="text-xs sm:hidden">{prompt.text.split(' ')[0]}</span>
             </button>
           ))}
         </div>
@@ -373,25 +404,25 @@ What would you like to explore today?`,
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask me anything about your studies..."
-              className="w-full px-4 py-3 pr-12 bg-gray-800/60 backdrop-blur-sm border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 bg-gray-800/60 backdrop-blur-sm border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-sm sm:text-base"
               rows={1}
-              style={{ minHeight: '48px', maxHeight: '120px' }}
+              style={{ minHeight: '42px', maxHeight: '100px' }}
               disabled={!apiKey || isLoading}
             />
           </div>
           <button
             onClick={clearChat}
-            className="p-3 text-gray-400 hover:text-white rounded-lg hover:bg-gray-700/50 transition-colors duration-200"
+            className="p-2 sm:p-3 text-gray-400 hover:text-white rounded-lg hover:bg-gray-700/50 transition-colors duration-200"
             title="Clear Chat"
           >
-            <HiRefresh className="w-5 h-5" />
+            <HiRefresh className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
           <button
             onClick={sendMessage}
             disabled={!inputMessage.trim() || !apiKey || isLoading}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white rounded-lg transition-all duration-200 flex items-center justify-center"
+            className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white rounded-lg transition-all duration-200 flex items-center justify-center"
           >
-            <HiPaperAirplane className="w-5 h-5" />
+            <HiPaperAirplane className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
       </div>
