@@ -14,6 +14,7 @@ import BudgetTracker from "../Dashboard/BudgetTracker/BudgetTracker";
 import ClassScheduleTracker from "../Dashboard/ClassSchedule/ClassScheduleTracker";
 import ExamQnA from "../Dashboard/ExamQnAGenarator/ExamQnA";
 import StudyPlaner from "../Dashboard/StudeyPlaner/StudyPlaner";
+import AskAi from "../Dashboard/AskAi/AskAi";
 
 
 export const router = createBrowserRouter([
@@ -74,6 +75,10 @@ export const router = createBrowserRouter([
             {
                 path: 'study-planner',
                 Component: StudyPlaner
+            },
+            {
+                path: 'ask-ai',
+                Component: AskAi
             }
         ]
     }

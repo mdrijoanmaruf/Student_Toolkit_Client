@@ -14,7 +14,8 @@ import {
   HiChartBar,
   HiCurrencyDollar,
   HiClock,
-  HiQuestionMarkCircle
+  HiQuestionMarkCircle,
+  HiSparkles
 } from 'react-icons/hi'
 import useAuth from '../Hook/useAuth'
 import useWebsiteLoading from '../Hook/useWebsiteLoading.jsx'
@@ -65,7 +66,8 @@ const DashboardLayout = () => {
     { icon: HiCurrencyDollar, label: 'Budget Tracker', path: '/dashboard/budget-tracker' },
     { icon: HiCalendar, label: 'Class Schedule', path: '/dashboard/class-schedule' },
     { icon: HiQuestionMarkCircle, label: 'Exam Q&A', path: '/dashboard/exam-qna' },
-    { icon: HiClock, label: 'Study Planner', path: '/dashboard/study-planner' }
+    { icon: HiClock, label: 'Study Planner', path: '/dashboard/study-planner' },
+    { icon: HiSparkles, label: 'Ask AI', path: '/dashboard/ask-ai' }
   ]
 
   return (
