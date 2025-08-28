@@ -108,7 +108,7 @@ const DashboardLayout = () => {
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col z-30">
         <div className="flex flex-col flex-grow bg-gray-800/40 backdrop-blur-md border-r border-gray-700/50 relative z-30">
           {/* Logo */}
-          <div className="flex items-center justify-center h-20 px-6 border-b border-gray-700/50">
+          <div className="flex items-center justify-center h-18 px-6 border-b border-gray-700/50">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-600 via-violet-600 to-purple-800 rounded-full flex items-center justify-center shadow-lg">
                 <HiAcademicCap className="w-6 h-6 text-white" />

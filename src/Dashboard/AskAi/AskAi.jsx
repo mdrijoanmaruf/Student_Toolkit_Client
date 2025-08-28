@@ -15,6 +15,26 @@ import Swal from 'sweetalert2'
 
 const AskAi = () => {
   const { user } = useAuth()
+  
+  // Add CSS to hide scrollbars
+  useEffect(() => {
+    const style = document.createElement('style')
+    style.textContent = `
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+    `
+    document.head.appendChild(style)
+    
+    return () => {
+      document.head.removeChild(style)
+    }
+  }, [])
+  
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -210,16 +230,20 @@ What would you like to explore today?`,
   ]
 
   const formatMessage = (content) => {
-    // Simple formatting for AI responses
+    // Enhanced formatting for AI responses with better styling
     return content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/```(.*?)```/gs, '<pre class="bg-gray-800 p-2 rounded text-sm overflow-x-auto"><code>$1</code></pre>')
-      .replace(/`(.*?)`/g, '<code class="bg-gray-800 px-1 py-0.5 rounded text-sm">$1</code>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-purple-200 font-semibold">$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em class="text-blue-200 italic">$1</em>')
+      .replace(/```(.*?)```/gs, '<div class="my-3"><pre class="bg-gray-900/80 border border-gray-600/50 p-4 rounded-lg text-sm overflow-x-auto text-green-300 font-mono shadow-inner"><code>$1</code></pre></div>')
+      .replace(/`(.*?)`/g, '<code class="bg-purple-900/50 text-purple-200 px-2 py-1 rounded text-sm font-mono border border-purple-700/30">$1</code>')
+      .replace(/^• (.*$)/gim, '<div class="flex items-start mb-2"><span class="text-purple-400 mr-2 mt-1">▸</span><span class="flex-1">$1</span></div>')
+      .replace(/^(\d+\.) (.*$)/gim, '<div class="flex items-start mb-2"><span class="text-blue-400 mr-2 font-semibold min-w-[24px]">$1</span><span class="flex-1">$2</span></div>')
+      .replace(/\n\n/g, '<div class="my-3"></div>')
+      .replace(/\n/g, '<br>')
   }
 
   return (
-    <div className="h-full  overflow-hidden">
+    <div className="h-full overflow-hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
       {/* Background Effects */}
       <div className="absolute inset-0 opacity-10 z-0">
         <div className="grid grid-cols-12 grid-rows-8 h-full w-full">
@@ -237,44 +261,86 @@ What would you like to explore today?`,
       </div>
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 relative z-10" style={{ height: 'calc(100vh - 270px)' }}>
+      <div 
+        className="flex-1 overflow-y-auto p-4 space-y-4 relative z-10 hide-scrollbar" 
+        style={{ 
+          height: 'calc(100vh - 270px)'
+        }}
+      >
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex items-start space-x-3 ${message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}
           >
-            <div
-              className={`max-w-3xl p-4 rounded-lg ${
+            {/* Avatar */}
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg overflow-hidden ${
+              message.type === 'user' 
+                ? 'bg-gradient-to-br from-purple-500 to-violet-600 border-2 border-purple-300/50' 
+                : 'bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-purple-400/30'
+            }`}>
+              {message.type === 'user' ? (
+                user?.photoURL ? (
+                  <img
+                    src={user.photoURL}
+                    alt="Profile"
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                ) : (
+                  <span className="text-white font-semibold text-sm">
+                    {user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+                  </span>
+                )
+              ) : (
+                <HiSparkles className="w-4 h-4 text-purple-400" />
+              )}
+            </div>
+
+            {/* Message Bubble */}
+            <div className={`max-w-[75%] relative ${
+              message.type === 'user' ? 'ml-auto' : 'mr-auto'
+            }`}>
+              {/* Message Content */}
+              <div className={`p-4 rounded-2xl shadow-lg backdrop-blur-sm ${
                 message.type === 'user'
-                  ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white'
-                  : 'bg-gray-800/60 backdrop-blur-sm border border-gray-700/50 text-gray-100'
-              }`}
-            >
-              <div 
-                className="whitespace-pre-wrap"
-                dangerouslySetInnerHTML={{
-                  __html: message.type === 'ai' ? formatMessage(message.content) : message.content
-                }}
-              />
-              <div className={`text-xs mt-2 ${
-                message.type === 'user' ? 'text-purple-200' : 'text-gray-400'
+                  ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white rounded-tr-md'
+                  : 'bg-gray-800/90 border border-gray-700/50 text-gray-100 rounded-tl-md'
               }`}>
-                {message.timestamp.toLocaleTimeString()}
+                <div 
+                  className={`leading-relaxed ${message.type === 'ai' ? 'text-gray-100' : ''}`}
+                  dangerouslySetInnerHTML={{
+                    __html: message.type === 'ai' ? formatMessage(message.content) : message.content
+                  }}
+                />
+              </div>
+              
+              {/* Timestamp */}
+              <div className={`text-xs mt-1 px-2 ${
+                message.type === 'user' 
+                  ? 'text-purple-300 text-right' 
+                  : 'text-gray-500 text-left'
+              }`}>
+                {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
             </div>
           </div>
         ))}
 
         {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-gray-800/60 backdrop-blur-sm border border-gray-700/50 p-4 rounded-lg">
-              <div className="flex items-center space-x-2">
+          <div className="flex items-start space-x-3">
+            {/* AI Avatar */}
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-purple-400/30 flex items-center justify-center shrink-0 shadow-lg">
+              <HiSparkles className="w-4 h-4 text-purple-400 animate-pulse" />
+            </div>
+            
+            {/* Typing Indicator */}
+            <div className="bg-gray-800/90 border border-gray-700/50 p-4 rounded-2xl rounded-tl-md shadow-lg backdrop-blur-sm">
+              <div className="flex items-center space-x-3">
                 <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                 </div>
-                <span className="text-gray-400 text-sm">AI is thinking...</span>
+                <span className="text-gray-400 text-sm font-medium">AI is thinking...</span>
               </div>
             </div>
           </div>
