@@ -122,12 +122,15 @@ const Footer = () => {
             <p className="text-gray-400 text-sm">
               © 2024 Student Life Toolkit. All rights reserved.
             </p>
-            <div className="flex space-x-6 text-sm">
-              <a href="#" className="text-gray-400 hover:text-purple-400 transition-colors duration-200">
-                Privacy Policy
-              </a>
-              <a href="#" className="text-gray-400 hover:text-purple-400 transition-colors duration-200">
-                Terms of Service
+            <div className="text-sm">
+              <span className="text-gray-400">Developed by </span>
+              <a 
+                href="https://portfolio.rijoan.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-purple-400 hover:text-purple-300 transition-colors duration-200 font-medium"
+              >
+                Md Rijoan Maruf
               </a>
             </div>
           </div>

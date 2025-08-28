@@ -59,7 +59,7 @@ const Root = () => {
       </div>
 
       {/* Main Content with top padding for fixed navbar */}
-      <main className="min-h-[70vh] pt-16 relative z-10">
+      <main className=" pt-16 relative z-10">
         <Outlet></Outlet>
       </main>
 
