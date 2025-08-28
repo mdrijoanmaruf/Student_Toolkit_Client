@@ -8,6 +8,12 @@ import About from "../Pages/About/About";
 import Contact from "../Pages/Contact/Contact";
 import PrivateRoute from "./PrivateRoute";
 import DashboardLayout from "../Layouts/DashboardLayout";
+// Dashboard Components
+import DashboardHome from "../Dashboard/DashboardHome/DashboardHome";
+import BudgetTracker from "../Dashboard/BudgetTracker/BudgetTracker";
+import ClassScheduleTracker from "../Dashboard/ClassSchedule/ClassScheduleTracker";
+import ExamQnA from "../Dashboard/ExamQnAGenarator/ExamQnA";
+import StudyPlaner from "../Dashboard/StudeyPlaner/StudyPlaner";
 
 
 export const router = createBrowserRouter([
@@ -47,6 +53,28 @@ export const router = createBrowserRouter([
         path: "/dashboard",
         element: <PrivateRoute>
             <DashboardLayout></DashboardLayout>
-        </PrivateRoute>
+        </PrivateRoute>,
+        children: [
+            {
+                index: true,
+                Component: DashboardHome
+            },
+            {
+                path: 'budget-tracker',
+                Component: BudgetTracker
+            },
+            {
+                path: 'class-schedule',
+                Component: ClassScheduleTracker
+            },
+            {
+                path: 'exam-qna',
+                Component: ExamQnA
+            },
+            {
+                path: 'study-planner',
+                Component: StudyPlaner
+            }
+        ]
     }
 ])
