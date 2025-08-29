@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { HiAcademicCap, HiMenu, HiX, HiUser, HiLogout } from 'react-icons/hi';
+import { HiUser, HiLogout, HiMenu, HiX } from 'react-icons/hi';
 import useAuth from '../../Hook/useAuth';
+import Logo from '../Logo/Logo';
 import Swal from 'sweetalert2';
 
 const Navbar = () => {
@@ -99,13 +100,8 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo Section */}
-          <Link to="/" className="flex items-center space-x-2" onClick={() => setActiveItem('Home')}>
-            <div className="bg-gradient-to-r from-purple-600 to-violet-600 p-2 rounded-lg shadow-lg">
-              <HiAcademicCap className="w-8 h-8 text-white" />
-            </div>
-            <div className="text-xl font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">
-              StudyMate
-            </div>
+          <Link to="/" className="flex items-center" onClick={() => setActiveItem('Home')}>
+            <Logo size={32} textSize="xl" />
           </Link>
 
           {/* Navigation Items - Desktop */}

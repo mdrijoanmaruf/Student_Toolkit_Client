@@ -12,6 +12,7 @@ import DashboardLayout from "../Layouts/DashboardLayout";
 import DashboardHome from "../Dashboard/DashboardHome/DashboardHome";
 import BudgetTracker from "../Dashboard/BudgetTracker/BudgetTracker";
 import ClassScheduleTracker from "../Dashboard/ClassSchedule/ClassScheduleTracker";
+import CourseMaterial from "../Dashboard/CourseMaterial/CourseMaterial";
 import ExamQnA from "../Dashboard/ExamQnAGenarator/ExamQnA";
 import StudyPlaner from "../Dashboard/StudeyPlaner/StudyPlaner";
 import AskAi from "../Dashboard/AskAi/AskAi";
@@ -67,6 +68,10 @@ export const router = createBrowserRouter([
             {
                 path: 'class-schedule',
                 Component: ClassScheduleTracker
+            },
+            {
+                path: 'course-materials',
+                Component: CourseMaterial
             },
             {
                 path: 'exam-qna',

@@ -10,7 +10,8 @@ import {
   HiSparkles,
   HiAcademicCap,
   HiLightBulb,
-  HiArrowRight
+  HiArrowRight,
+  HiBookOpen
 } from 'react-icons/hi'
 import useAuth from '../../Hook/useAuth'
 
@@ -57,6 +58,17 @@ const DashboardHome = () => {
       features: ['Timetable management', 'Class reminders', 'Schedule optimization']
     },
     {
+      title: 'Course Materials',
+      description: 'Store and organize your study resources and course notes',
+      icon: HiBookOpen,
+      path: '/dashboard/course-materials',
+      color: 'from-indigo-500 to-blue-600',
+      bgColor: 'bg-indigo-500/10',
+      borderColor: 'border-indigo-500/20',
+      features: ['Resource organization', 'Link management', 'Course-wise sorting'],
+      isNew: true
+    },
+    {
       title: 'Exam Q&A Generator',
       description: 'AI-powered practice questions for effective exam preparation',
       icon: HiQuestionMarkCircle,
@@ -64,8 +76,7 @@ const DashboardHome = () => {
       color: 'from-purple-500 to-violet-600',
       bgColor: 'bg-purple-500/10',
       borderColor: 'border-purple-500/20',
-      features: ['AI question generation', 'Multiple formats', 'Instant feedback'],
-      isNew: true
+      features: ['AI question generation', 'Multiple formats', 'Instant feedback']
     },
     {
       title: 'Study Planner',
@@ -92,8 +103,8 @@ const DashboardHome = () => {
 
   const quickActions = [
     { title: 'Start Study Session', icon: HiAcademicCap, action: () => navigate('/dashboard/study-planner') },
+    { title: 'Browse Materials', icon: HiBookOpen, action: () => navigate('/dashboard/course-materials') },
     { title: 'Ask AI Question', icon: HiSparkles, action: () => navigate('/dashboard/ask-ai') },
-    { title: 'Generate Quiz', icon: HiQuestionMarkCircle, action: () => navigate('/dashboard/exam-qna') },
     { title: 'Check Schedule', icon: HiCalendar, action: () => navigate('/dashboard/class-schedule') }
   ]
 

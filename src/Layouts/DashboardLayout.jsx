@@ -20,6 +20,7 @@ import {
 import useAuth from '../Hook/useAuth'
 import useWebsiteLoading from '../Hook/useWebsiteLoading.jsx'
 import Swal from 'sweetalert2'
+import Logo from '../Shared/Logo/Logo.jsx'
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -65,6 +66,7 @@ const DashboardLayout = () => {
     { icon: HiChartBar, label: 'Dashboard Home', path: '/dashboard' },
     { icon: HiCurrencyDollar, label: 'Budget Tracker', path: '/dashboard/budget-tracker' },
     { icon: HiCalendar, label: 'Class Schedule', path: '/dashboard/class-schedule' },
+    { icon: HiBookOpen, label: 'Course Materials', path: '/dashboard/course-materials' },
     { icon: HiQuestionMarkCircle, label: 'Exam Q&A', path: '/dashboard/exam-qna' },
     { icon: HiClock, label: 'Study Planner', path: '/dashboard/study-planner' },
     { icon: HiSparkles, label: 'Ask AI', path: '/dashboard/ask-ai' }
@@ -109,14 +111,7 @@ const DashboardLayout = () => {
         <div className="flex flex-col flex-grow bg-gray-800/40 backdrop-blur-md border-r border-gray-700/50 relative z-30">
           {/* Logo */}
           <div className="flex items-center justify-center h-18 px-6 border-b border-gray-700/50">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 via-violet-600 to-purple-800 rounded-full flex items-center justify-center shadow-lg">
-                <HiAcademicCap className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">
-                StudyMate
-              </span>
-            </div>
+            <Logo/>
           </div>
 
           {/* Navigation */}
@@ -248,8 +243,8 @@ const DashboardLayout = () => {
 
       {/* Main Content */}
       <div className="lg:pl-64 flex flex-col min-h-screen relative z-20">
-        {/* Top Header */}
-        <header className="bg-gray-800/40 backdrop-blur-md border-b border-gray-700/50 px-4 py-4 sm:px-6 lg:px-8">
+        {/* Fixed Top Header */}
+        <header className="fixed top-0 right-0 left-0 lg:left-64 bg-gray-800/40 backdrop-blur-md border-b border-gray-700/50 px-4 py-4 sm:px-6 lg:px-8 z-30">
           <div className="flex items-center justify-between">
             {/* Mobile Menu Button */}
             <div className="flex items-center">
@@ -294,8 +289,8 @@ const DashboardLayout = () => {
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 md:p-6 p-3">
+        {/* Page Content with top padding to account for fixed header */}
+        <main className="flex-1 pt-20 md:p-6 p-3 md:pt-24">
           <div className="md:mx-4">
             <Outlet />
           </div>

@@ -52,7 +52,7 @@ const Hero = () => {
   }
 
   return (
-    <div className="relative overflow-hidden my-12">
+    <div className="relative overflow-hidden mt-24">
       {/* Main Content */}
       <div className="relative z-10 flex flex-col ">
         <div className="flex-1 flex items-center justify-center">
